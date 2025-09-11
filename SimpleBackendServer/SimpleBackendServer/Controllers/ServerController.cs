@@ -18,8 +18,9 @@ namespace SimpleBackendServer.Controllers
         [HttpGet("connect")]
         public IActionResult Connect()
         {
-            _requestCount++;
             var port = HttpContext.Connection.LocalPort;
+            _logger.LogInformation($"Added connection to this server on port {port}");
+            _requestCount++;
             return Ok($"Hello from server on port {port}. Total requests: {_requestCount}");
         }
 
@@ -28,6 +29,7 @@ namespace SimpleBackendServer.Controllers
         public IActionResult Status()
         {
             var port = HttpContext.Connection.LocalPort;
+            _logger.LogInformation($"Reporting status of connections to this server on port {port}");
             return Ok(new { server = port, requests = _requestCount});
         }
     }
