@@ -1,0 +1,6 @@
+@SimpleBackendServer_HostAddress = http://localhost:5045
+
+GET {{SimpleBackendServer_HostAddress}}/
+Accept: application/json
+
+###
