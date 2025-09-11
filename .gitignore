@@ -1,3 +1,7 @@
 .vs/
-SimpleBackendServer/SimpleBackendServer/bin/
-SimpleBackendServer/SimpleBackendServer/obj/
+SimpleBackendServer/.vs/
+SimpleBackendServer/bin/
+SimpleBackendServer/obj/
+LoadBalancer/.vs/
+LoadBalancer/bin/
+LoadBalancer/obj/
