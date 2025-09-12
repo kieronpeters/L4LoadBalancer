@@ -6,8 +6,11 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddHostedService<HealthCheckerService>();
-builder.Services.AddSingleton<StatusReporterService>();
+builder.Services.AddHttpClient();
+builder.Services.AddHostedService<BackgroudHealthCheckerService>();
+builder.Services.AddSingleton<IHealthCheckerService, HealthCheckerService>();
+builder.Services.AddSingleton<IStatusReporterService, StatusReporterService>();
+builder.Services.AddSingleton<IConnectionService, ConnectionService>();
 
 var app = builder.Build();
 

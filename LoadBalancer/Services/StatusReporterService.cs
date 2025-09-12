@@ -1,27 +1,20 @@
-using System.Collections.Concurrent;
 
-public class StatusReporterService
+public class StatusReporterService(HttpClient httpClient, IHealthCheckerService healthCheckerService) : IStatusReporterService
 {
-    private HttpClient _httpClient;
-    private HealthCheckerService _healthCheckerService;
+    private readonly HttpClient _httpClient = httpClient;
+    private readonly IHealthCheckerService _healthCheckerService = healthCheckerService;
 
     private List<string> _responses = [];
 
-    public StatusReporterService(HttpClient httpClient, HealthCheckerService healthCheckerService)
-    {
-        _httpClient = httpClient;
-        _healthCheckerService = healthCheckerService;
-    }
-
-
     public async Task<List<string>> GetHealtyBackendStatuses()
     {
+        _responses.Clear();
         var urls = _healthCheckerService.GetAllHealthyBackends();
 
         foreach (var url in urls)
         {
-            var response = await _httpClient.GetAsync(url);
-            _responses.Add(response.Content.ToString()!);
+            var response = await _httpClient.GetAsync(url + "/status");
+            _responses.Add(await response.Content.ReadAsStringAsync());
             
         }
         return _responses;

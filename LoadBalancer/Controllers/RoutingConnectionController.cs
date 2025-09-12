@@ -9,19 +9,21 @@ namespace LoadBalancer.Controllers
         
 
         private readonly ILogger<RoutingConnectionController> _logger;
-        private readonly HealthCheckerService _healthCheckerService;
+        private readonly IHealthCheckerService _healthCheckerService;
+        private readonly IStatusReporterService _statusReporterService;
 
-        private readonly StatusReporterService _statusReporterService;
+        private readonly IConnectionService _connectionService;
 
-        public RoutingConnectionController(ILogger<RoutingConnectionController> logger, HealthCheckerService healthCheckerService, StatusReporterService statusReporterService)
+        public RoutingConnectionController(ILogger<RoutingConnectionController> logger, IHealthCheckerService healthCheckerService, IStatusReporterService statusReporterService, IConnectionService connectionService)
         {
             _logger = logger;
             _healthCheckerService = healthCheckerService;
             _statusReporterService = statusReporterService;
+            _connectionService = connectionService;
         }
 
         [HttpGet("connect")]
-        public IActionResult Connect()
+        public async Task<IActionResult> Connect()
         {
             // call method for get a healthy backend service
             var url = _healthCheckerService.GetNextHealthyBackend();
@@ -31,17 +33,19 @@ namespace LoadBalancer.Controllers
                 return NotFound("No url connection registered as healthy in Load Balancer");
             }
 
+            if (!await _connectionService.ConnectToServer(url)) {
+                return NotFound("Server connection failure, unable to connect");
+            }
+        
             return Ok($"connection established at : {url}");
         }
 
         [HttpGet("status")]
-        public IActionResult Status()
+        public async Task<IActionResult> Status()
         {
-            var backendUrls = _healthCheckerService.GetAllHealthyBackends();
+            var backendStatuses = await _statusReporterService.GetHealtyBackendStatuses();
 
-            // get healthy backend url calls
-
-            return Ok();
+            return Ok(backendStatuses);
         }
     }
 }

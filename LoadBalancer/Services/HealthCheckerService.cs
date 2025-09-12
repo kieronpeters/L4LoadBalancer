@@ -1,45 +1,72 @@
-using System.Collections.Concurrent;
 
-public class HealthCheckerService : BackgroundService
+
+public class HealthCheckerService : IHealthCheckerService
 {
-    private readonly List<String> _backendUrls =
+    private readonly List<string> _backendUrls =
     [
-        "http://localhost:9001",
-        "http://localhost:9002",
-        "http://localhost:9003"
+        "https://localhost:9001",
+        "https://localhost:9002",
+        "https://localhost:9003"
     ];
 
     private HttpClient _httpClient = new();
+
+    private readonly ILogger<HealthCheckerService> _logger;
 
     private List<string> _healthyServers = new();
 
     private int _healthyServersIndex = -1;
 
+    public HealthCheckerService(HttpClient httpClient, ILogger<HealthCheckerService> logger)
+    {
+        _httpClient = httpClient;
+        _logger = logger;
 
-    protected async override Task ExecuteAsync(CancellationToken stoppingToken)
+    }
+
+    public async Task CheckServersActive(CancellationToken stoppingToken)
     {
         // logic here to call the backend and remove a server that fails the check
 
-        foreach (var backendUrl in _backendUrls)
+        while (!stoppingToken.IsCancellationRequested)
         {
-            // if (api contains OK status)
-
-            var response = await _httpClient.GetAsync(backendUrl + "/status", stoppingToken);
-
-            if (!response.IsSuccessStatusCode && _healthyServers.Contains(backendUrl))
+            foreach (var backendUrl in _backendUrls)
             {
-                _healthyServers.Remove(backendUrl);
+
+                // if (api contains OK status)
+                try
+                {
+                    var response = await _httpClient.GetAsync(backendUrl + "/status", stoppingToken);
+
+                    _logger.LogDebug($"response status code from server at {backendUrl} : {response.StatusCode}");
+
+                    if (!response.IsSuccessStatusCode && _healthyServers.Contains(backendUrl))
+                    {
+                        _healthyServers.Remove(backendUrl);
+                    }
+                    else if (response.IsSuccessStatusCode && !_healthyServers.Contains(backendUrl))
+                    {
+                        _healthyServers.Add(backendUrl);
+                    }
+
+                }
+                catch
+                {
+                    if (_healthyServers.Contains(backendUrl))
+                    {
+                        _healthyServers.Remove(backendUrl);
+                    }
+                }
             }
-            else if (response.IsSuccessStatusCode && !_healthyServers.Contains(backendUrl))
-            {
-                _healthyServers.Add(backendUrl);
-            }
+            _logger.LogDebug($"server count of active routes {_healthyServers.Count}");
+            await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
         }
+        
     }
 
     public List<string> GetAllHealthyBackends() {
         return _healthyServers;
-    };
+    }
 
     public string GetNextHealthyBackend()
     {
