@@ -7,14 +7,14 @@ using FluentAssertions;
 using System.Net;
 
 
-namespace ServerControllerTests;
+namespace Controllers;
 
-public class UnitTest1
+public class ServerControllerTests
 {
-    public Mock<ILogger<ServerController>> _mockLogger = new();
-    public ServerController _sut;
+    private Mock<ILogger<ServerController>> _mockLogger = new();
+    private ServerController _sut;
 
-    public UnitTest1()
+    public ServerControllerTests()
     {
         var context = new DefaultHttpContext();
         context.Connection.LocalPort = 9001;

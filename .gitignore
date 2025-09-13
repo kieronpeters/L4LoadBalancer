@@ -8,4 +8,7 @@ SimpleBackendServerTests/obj/
 LoadBalancer/.vs/
 LoadBalancer/bin/
 LoadBalancer/obj/
+LoadBalancerTests/.vs/
+LoadBalancerTests/bin/
+LoadBalancerTests/obj/
 .fake
