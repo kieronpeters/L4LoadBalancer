@@ -44,7 +44,6 @@ namespace LoadBalancer.Controllers
         public async Task<IActionResult> Status()
         {
             var backendStatuses = await _statusReporterService.GetHealtyBackendStatuses();
-
             return Ok(backendStatuses);
         }
     }

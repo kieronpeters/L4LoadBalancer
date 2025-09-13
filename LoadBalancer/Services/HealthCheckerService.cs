@@ -2,26 +2,24 @@
 
 public class HealthCheckerService : IHealthCheckerService
 {
-    private readonly List<string> _backendUrls =
-    [
-        "https://localhost:9001",
-        "https://localhost:9002",
-        "https://localhost:9003"
-    ];
 
     private HttpClient _httpClient = new();
 
+    private BackendConfig _backendConfig = new();
+
     private readonly ILogger<HealthCheckerService> _logger;
 
-    private List<string> _healthyServers = new();
+    private List<string> _healthyServers = [];
 
     private int _healthyServersIndex = -1;
 
-    public HealthCheckerService(HttpClient httpClient, ILogger<HealthCheckerService> logger)
+    private const string Path = "/status";
+
+    public HealthCheckerService(HttpClient httpClient, BackendConfig backendConfig, ILogger<HealthCheckerService> logger)
     {
         _httpClient = httpClient;
+        _backendConfig = backendConfig;
         _logger = logger;
-
     }
 
     public async Task CheckServersActive(CancellationToken stoppingToken)
@@ -30,13 +28,16 @@ public class HealthCheckerService : IHealthCheckerService
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            foreach (var backendUrl in _backendUrls)
+            foreach (var backendUrl in _backendConfig.BackendUrls)
             {
 
                 // if (api contains OK status)
                 try
                 {
-                    var response = await _httpClient.GetAsync(backendUrl + "/status", stoppingToken);
+                    var request = new HttpRequestMessage(HttpMethod.Get, backendUrl + Path);
+                    request.Headers.Add("X-LB-SECRET", "my-secret");
+
+                    var response = await _httpClient.SendAsync(request);
 
                     _logger.LogDebug($"response status code from server at {backendUrl} : {response.StatusCode}");
 

@@ -12,6 +12,12 @@ builder.Services.AddSingleton<IHealthCheckerService, HealthCheckerService>();
 builder.Services.AddSingleton<IStatusReporterService, StatusReporterService>();
 builder.Services.AddSingleton<IConnectionService, ConnectionService>();
 
+//add port arguements for server to create list of backendUrls registered
+var urls = args.Select(x => $"https://localhost:{x}").ToList();
+
+var backendConfig = new BackendConfig() { BackendUrls = urls};
+builder.Services.AddSingleton(backendConfig);
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
