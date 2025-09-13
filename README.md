@@ -1,5 +1,15 @@
 # L4LoadBalancer
 
+Overview of Architecture
+
+This project works with a LoadBalancer project that is an API project, that will be called by the user and any calls to the underlying servers is denied as they will not know
+the header value required to connect to any instance directly, the load balancer will know this secret only.
+
+Then the server instances are created from the SimpleBackendServer example that is provided here as well, first you spin these up, which are also API projects but have an auth check that will return forbidden without the expected request header being present. Then this will store the amount of connections to itself and a status to report its current count of connections and the port number that it is running on.
+
+Basically this architecture, is 3 or more servers that are fronted by an API load balancer operating at Level 4 of the OSI model. So the routing is using connection termination and not passthrough, as we modify and provide the necessary auth header to ensure that the requests to the servers is accepted without ever exposing this to the clients. The aim of this is to evenly rotate in simple round-robin fashion through all available and healthy servers. This also will remove and add servers with 5 second periodic checks in a separate thread process to ensure that the servers are added or removed as they report healthy or not.
+
+
 Instructions how to run programme:
 
 Open the directory to where this file is and run the servers.bat file which runs these commands:

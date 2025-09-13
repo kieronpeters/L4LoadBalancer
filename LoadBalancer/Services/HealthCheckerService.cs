@@ -51,7 +51,7 @@ public class HealthCheckerService : IHealthCheckerService
                     }
 
                 }
-                catch
+                catch(Exception)
                 {
                     if (_healthyServers.Contains(backendUrl))
                     {
