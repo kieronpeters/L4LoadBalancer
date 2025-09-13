@@ -2,6 +2,10 @@
 SimpleBackendServer/.vs/
 SimpleBackendServer/bin/
 SimpleBackendServer/obj/
+SimpleBackendServerTests/.vs/
+SimpleBackendServerTests/bin/
+SimpleBackendServerTests/obj/
 LoadBalancer/.vs/
 LoadBalancer/bin/
 LoadBalancer/obj/
+.fake
